@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -8,39 +10,40 @@ namespace WebApi.Controllers
     {
         [HttpPost]
         [Route("")]
-        public Category CreateCategory([FromBody] Category model)
+        public async Task<ActionResult<List<Category>>> CreateCategory([FromBody] Category model)
         {
-            return model;
+            return Ok(model);
         }
 
         [HttpGet]
         [Route("")]
-        public string ReadCategory()
+        public async Task<ActionResult<List<Category>>> ReadCategory()
         {
-            return "GET";
+            return new List<Category>();
         }
 
         [HttpGet]
         [Route("{id:int}")]
-        public string ReadCategoryById(int id)
+        public async Task<ActionResult<Category>> ReadCategoryById(int id)
         {
-            return "GET" + id.ToString();
+            return new Category();
         }
 
         [HttpPut]
         [Route("{id:int}")]
-        public Category UpdateCategory(int id,[FromBody]Category model)
+        public async Task<ActionResult<List<Category>>> UpdateCategory(int id,[FromBody]Category model)
         {
             if(model.Id == id)
-                return model;
-            return null;
+                return Ok(model);
+
+            return NotFound();
         }
 
         [HttpDelete]
         [Route("id:int")]
-        public string DeleteCategory()
+        public async Task<ActionResult<List<Category>>> DeleteCategory()
         {
-            return "DELETE";
+            return Ok();
         }
     }
 }
