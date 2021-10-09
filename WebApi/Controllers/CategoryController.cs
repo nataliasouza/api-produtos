@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WebApi.Data;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -10,12 +13,23 @@ namespace WebApi.Controllers
     {
         [HttpPost]
         [Route("")]
-        public async Task<ActionResult<List<Category>>> CreateCategory([FromBody] Category model)
+        public async Task<ActionResult<List<Category>>> CreateCategory(
+            [FromBody] Category model,
+            [FromServices]DataContext context 
+            )
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            return Ok(model);
+            try
+            {
+                context.Categories.Add(model);
+                await context.SaveChangesAsync();
+                return Ok(model);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Não foi possível criar a categoria" });
+            }
         }
 
         [HttpGet]
@@ -34,7 +48,11 @@ namespace WebApi.Controllers
 
         [HttpPut]
         [Route("{id:int}")]
-        public async Task<ActionResult<List<Category>>> UpdateCategory(int id,[FromBody]Category model)
+        public async Task<ActionResult<List<Category>>> UpdateCategory(
+            int id,
+            [FromBody]Category model,
+            [FromServices] DataContext context
+            )
         {
             if(id != model.Id)
                 return NotFound(new { message = "Categoria não encontrada" });
@@ -42,7 +60,16 @@ namespace WebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(model);
+            try
+            {
+                context.Entry<Category>(model).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+                return Ok(model);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return BadRequest(new { message = "Não foi possível atualizar a categoria" });
+            }
         }
 
         [HttpDelete]
