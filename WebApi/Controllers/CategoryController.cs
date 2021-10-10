@@ -34,16 +34,23 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<List<Category>>> ReadCategory()
+        public async Task<ActionResult<List<Category>>> ReadCategory(
+            [FromServices] DataContext context
+            )
         {
-            return new List<Category>();
+            var categories = await context.Categories.AsNoTracking().ToListAsync();
+                return categories;
         }
 
         [HttpGet]
         [Route("{id:int}")]
-        public async Task<ActionResult<Category>> ReadCategoryById(int id)
+        public async Task<ActionResult<Category>> ReadCategoryById(
+            int id,
+            [FromServices] DataContext context
+            )
         {
-            return new Category();
+            var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return Ok(category);
         }
 
         [HttpPut]
